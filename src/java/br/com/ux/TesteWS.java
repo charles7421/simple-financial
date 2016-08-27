@@ -19,8 +19,8 @@ import javax.ws.rs.core.MediaType;
  *
  * @author charles
  */
-@Path("main")
-public class FinanceiroWS {
+@Path("teste")
+public class TesteWS {
 
     @Context
     private UriInfo context;
@@ -28,7 +28,7 @@ public class FinanceiroWS {
     /**
      * Creates a new instance of FinanceiroWS
      */
-    public FinanceiroWS() {
+    public TesteWS() {
     }
 
     /**
