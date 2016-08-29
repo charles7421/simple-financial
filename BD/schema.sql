@@ -9,13 +9,13 @@
   * Seguir conceitos do não-relacional, "evitando" relacionamentos entre tabelas e otimizando/reduzindo código.
   * Nome das tabelas, sempre plural, sempre minúsculo. E no caso, dos campos somente minúsculo.
   * Toda tabela criada deve ter o seu devido comentário, data de criação, e se for o caso, data de atualização.
-  * Identificador da tabela: id_nome_da_tabela.
+  * Identificador da tabela: id_nome_da_tabela, no singular.
   * Quando houver necessidade de nome composto na variavel, usar underline("_").
   * Campos pequenos: (varchar(100), int(10), decimal(4,2),  bit(1))
   * Campos médios:   (varchar(250), int(20), decimal(10,2), bit(1))
   * Campos maiores:  (varchar(500) ou TEXT, int(50), decimal(100,2), bit(1))
   * Campos "bit" sempre com default apropriado - Ex: DEFAULT b'0' quando padrão = false.
-  * 
+  * Toda tabela descritiva deve ter um registro sem valor, um com valor irrelevante (Ex: Sem categoria, sem tipo documento).
 */
 
 =============
@@ -134,13 +134,90 @@ Atualização: 27/08/2016
 ----------
 Descrição
 ----------
-Tabela para identificar qual categoria a despesa/receita se enquadra.
+Tabela para identificar qual categoria a despesa/receita se enquadra. Semelhante a uma plano de contas simplificado.
 Ex: Salário, Estudos, Gasolina ou ainda, escritório, despesas fixas, internet.
 
 */
 
 CREATE TABLE categorias (
   id_categoria        int(10)      NOT NULL AUTO_INCREMENT,
-  descricao           varchar(500) DEFAULT NULL,
+  descricao           varchar(250) DEFAULT NULL,
   PRIMARY KEY (id_categoria)
 )
+
+/*
+--------------
+Nome da tabela
+--------------
+tipos_documentos
+
+-----------
+Informações
+-----------
+Criação    : 29/08/2016
+Atualização: 29/08/2016
+
+----------
+Descrição
+----------
+Tabela para identificar qual tipo de documento do lançamento financeiro.
+Ex: Boleto, Cartão (Débito ou Crédito), Dinheiro, sem documento.
+
+*/
+
+CREATE TABLE tipos_documentos (
+  id_tipo_documento   int(10)      NOT NULL AUTO_INCREMENT,
+  descricao           varchar(250) DEFAULT NULL,
+  PRIMARY KEY (id_tipo_documento)
+)
+
+/*
+--------------
+Nome da tabela
+--------------
+lancamentos_financeiros
+
+-----------
+Informações
+-----------
+Criação    : 29/08/2016
+Atualização: 29/08/2016
+
+----------
+Descrição
+----------
+Tabela para armazenar os lançamentos financeiros, seja contas a receber ou contas a pagar, separados apenas pelo tipo.
+Campo id_lancamento_financeiro_vinculado é utilizado para vincular uma conta a receber ou pagar a outra. 
+Ex: Várias parcelas de uma mesma fonte recebedora ou pagadora (Borderô).
+
+-----------
+Observações
+-----------
+Tipos: Conta a Receber, Conta a Pagar.
+Status: Pago, Não Pago, Recebido, Não Recebido.
+
+*/
+
+CREATE TABLE lancamentos_financeiros (
+  id_lancamento_financeiro           int(10) NOT NULL AUTO_INCREMENT,
+  id_cliente_fornecedor              int(10) NOT NULL,
+  id_categoria                       int(10) NOT NULL,
+  id_tipo_documento                  int(10) NOT NULL,
+  numero_lancamento                  varchar(255) DEFAULT NULL,
+  status                             varchar(100) DEFAULT NULL,
+  tipo                               varchar(255) DEFAULT NULL,
+  dt_lancamento                      date    DEFAULT NULL,
+  dt_vencimento                      date    DEFAULT NULL,
+  dt_estorno                         date    DEFAULT NULL,
+  numero_parcela                     int(10) DEFAULT NULL,
+  Borderô                            int(10) DEFAULT NULL,
+  valor_lancamento                   decimal(10,2) DEFAULT NULL,
+  valor_pago                         decimal(10,2) DEFAULT NULL,
+  observacao                         text,
+  PRIMARY KEY (id_lancamento_financeiro),
+  CONSTRAINT `fk_lancamentos_financeiros_clientes_fornecedores` FOREIGN KEY ("id_cliente_fornecedor") REFERENCES clientes_fornecedores ("id_cliente_fornecedor"),
+  CONSTRAINT `fk_lancamentos_financeiros_categorias` FOREIGN KEY ("id_categoria") REFERENCES categorias ("id_categoria"),
+  CONSTRAINT `fk_lancamentos_financeiros_tipos_documentos` FOREIGN KEY ("id_tipo_documento") REFERENCES tipos_documentos ("id_tipo_documento")
+)
+
+
