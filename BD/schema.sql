@@ -1,3 +1,5 @@
+/*
+
 ============================
 ## Schema para utilização ##
 ============================
@@ -55,6 +57,7 @@ CREATE TABLE usuarios (
    atividade_principal varchar(200)  DEFAULT NULL,
    regime_tributario   varchar(100)  DEFAULT NULL,
    aliquota_simples    decimal(4,2)  DEFAULT NULL,
+   moeda               varchar(100)  DEFAULT NULL,
    taxa_um             decimal(4,2)  DEFAULT NULL,
    taxa_dois           decimal(4,2)  DEFAULT NULL,
    caixa_inicial       decimal(10,2) DEFAULT NULL,
@@ -94,7 +97,7 @@ No caso desta tabela, os campos "cidade", "endereço", "estado", são buscado vi
 
 CREATE TABLE clientes_fornecedores (
    id_cliente_fornecedor int(10)       NOT NULL AUTO_INCREMENT,
-   id_usuario            int(10)       NOT NULL
+   id_usuario            int(10)       NOT NULL,
    tipo                  varchar(100)  DEFAULT NULL,
    nome_fantasia         varchar(250)  DEFAULT NULL,
    razao_social          varchar(500)  DEFAULT NULL,
@@ -109,13 +112,12 @@ CREATE TABLE clientes_fornecedores (
    complemento           varchar(500)  DEFAULT NULL,
    cidade                varchar(250)  DEFAULT NULL,
    estado                varchar(100)  DEFAULT NULL,
-   telefone              varchar(100)  DEFAULT NULL,
    dt_cadastro           date          DEFAULT NULL,
    dt_ultima_alteracao   date          DEFAULT NULL,
    observacoes           text          DEFAULT NULL,
    palavras_chave        varchar(500)  DEFAULT NULL,
    PRIMARY KEY (id_cliente_fornecedor),
-   CONSTRAINT `fk_clientes_fornecedores_usuarios` FOREIGN KEY ("id_usuario") REFERENCES usuarios ("id_usuario")
+   CONSTRAINT fk_clientes_fornecedores_usuarios FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
 );
 
 
@@ -135,7 +137,7 @@ Atualização: 27/08/2016
 Descrição
 ----------
 Tabela para identificar qual categoria a despesa/receita se enquadra. Semelhante a uma plano de contas simplificado.
-Ex: Salário, Estudos, Gasolina ou ainda, escritório, despesas fixas, internet.
+Ex: Alimentação, Lazer, Moradia (Versão pessoa física), Despesas Fixas(Água, Luz, Telefone), Despesas Variaveis (Simples, Escritório)
 
 */
 
@@ -144,6 +146,36 @@ CREATE TABLE categorias (
   descricao           varchar(250) DEFAULT NULL,
   PRIMARY KEY (id_categoria)
 )
+
+/*
+--------------
+Nome da tabela
+--------------
+sub_categorias
+
+-----------
+Informações
+-----------
+Criação    : 27/08/2016
+Atualização: 27/08/2016
+
+----------
+Descrição
+----------
+Tabela para criar sub-categorias dentro de categorias.
+Ex: Água, Luz, Telefone (Despesas Fixas), Alimentação (Compras, lanches).
+
+*/
+
+CREATE TABLE sub_categorias (
+  id_sub_categoria    int(10)      NOT NULL AUTO_INCREMENT,
+  id_categoria        int(10)      NOT NULL,
+  descricao           varchar(250) DEFAULT NULL,
+  PRIMARY KEY (id_sub_categoria)
+)
+
+ALTER TABLE sub_categorias 
+  ADD CONSTRAINT `fk_lancamentos_financeiros_categorias` FOREIGN KEY (id_categoria) REFERENCES categorias (id_categoria);
 
 /*
 --------------
@@ -175,6 +207,35 @@ CREATE TABLE tipos_documentos (
 --------------
 Nome da tabela
 --------------
+cartoes_credito
+
+-----------
+Informações
+-----------
+Criação    : 29/08/2016
+Atualização: 29/08/2016
+
+----------
+Descrição
+----------
+Tabela para armazenar os cartões de crédito que o usuário possua.
+
+*/
+
+CREATE TABLE cartoes_credito (
+  id_cartao_credito     int(10)       NOT NULL AUTO_INCREMENT,
+  descricao             varchar(250)  DEFAULT NULL,
+  dt_vencimento_fatura  date          DEFAULT NULL,
+  dt_fechamento_fatura  date          DEFAULT NULL,
+  limite                decimal(10,2) DEFAULT NULL,
+  saldo_restante        decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (id_cartao_credito)
+)
+
+/*
+--------------
+Nome da tabela
+--------------
 lancamentos_financeiros
 
 -----------
@@ -195,29 +256,58 @@ Observações
 -----------
 Tipos: Conta a Receber, Conta a Pagar.
 Status: Pago, Não Pago, Recebido, Não Recebido.
+Campo ocorrencia_parcelamento (Diário, Mensal, Anual)
 
 */
 
 CREATE TABLE lancamentos_financeiros (
-  id_lancamento_financeiro           int(10) NOT NULL AUTO_INCREMENT,
-  id_cliente_fornecedor              int(10) NOT NULL,
-  id_categoria                       int(10) NOT NULL,
-  id_tipo_documento                  int(10) NOT NULL,
-  numero_lancamento                  varchar(255) DEFAULT NULL,
-  status                             varchar(100) DEFAULT NULL,
-  tipo                               varchar(255) DEFAULT NULL,
-  dt_lancamento                      date    DEFAULT NULL,
-  dt_vencimento                      date    DEFAULT NULL,
-  dt_estorno                         date    DEFAULT NULL,
-  numero_parcela                     int(10) DEFAULT NULL,
-  Borderô                            int(10) DEFAULT NULL,
-  valor_lancamento                   decimal(10,2) DEFAULT NULL,
-  valor_pago                         decimal(10,2) DEFAULT NULL,
+  id_lancamento_financeiro           int(10)       NOT NULL AUTO_INCREMENT,
+  id_cliente_fornecedor              int(10)       NOT NULL,
+  id_categoria                       int(10)       NOT NULL,
+  id_tipo_documento                  int(10)       NOT NULL,
+  id_cartao_credito                  int(10)       NOT NULL,
+  descricao                          varchar(500)  DEFAULT NULL,
+  tipo                               varchar(255)  DEFAULT NULL,
+  situacao                           varchar(100)  DEFAULT NULL,
+  dt_lancamento                      date          DEFAULT NULL,
+  dt_vencimento                      date          DEFAULT NULL,
+  dt_estorno                         date          DEFAULT NULL,
+  despesa_fixa                       bit(1)        DEFAULT b'0',
+  ocorrencia_despesa                 varchar(255)  DEFAULT NULL,
+  parcelado                          bit(1)        DEFAULT b'0',
+  ocorrencia_parcelamento            int(10)       DEFAULT NULL,
+  qtd_parcelamento                   varchar(255)  DEFAULT NULL,
+  valor                              decimal(10,2) DEFAULT NULL,
   observacao                         text,
-  PRIMARY KEY (id_lancamento_financeiro),
-  CONSTRAINT `fk_lancamentos_financeiros_clientes_fornecedores` FOREIGN KEY ("id_cliente_fornecedor") REFERENCES clientes_fornecedores ("id_cliente_fornecedor"),
-  CONSTRAINT `fk_lancamentos_financeiros_categorias` FOREIGN KEY ("id_categoria") REFERENCES categorias ("id_categoria"),
-  CONSTRAINT `fk_lancamentos_financeiros_tipos_documentos` FOREIGN KEY ("id_tipo_documento") REFERENCES tipos_documentos ("id_tipo_documento")
-)
+  PRIMARY KEY (id_lancamento_financeiro)
+); 
+
+ALTER TABLE lancamentos_financeiros
+  ADD CONSTRAINT `fk_lancamentos_financeiros_clientes_fornecedores`
+      FOREIGN KEY (id_cliente_fornecedor)
+      REFERENCES clientes_fornecedores (id_cliente_fornecedor);
+
+ALTER TABLE lancamentos_financeiros
+  ADD CONSTRAINT `fk_lancamentos_financeiros_categorias`
+      FOREIGN KEY (id_categoria)
+      REFERENCES categorias (id_categoria);
+
+ALTER TABLE lancamentos_financeiros
+  ADD CONSTRAINT `fk_lancamentos_financeiros_tipos_documentos`
+      FOREIGN KEY (id_tipo_documento)
+      REFERENCES tipos_documentos (id_tipo_documento);
+
+ALTER TABLE lancamentos_financeiros
+  ADD CONSTRAINT `fk_lancamentos_financeiros_cartoes`
+      FOREIGN KEY (id_cartao_credito)
+      REFERENCES cartoes_credito (id_cartao_credito);
+
+
+
+
+
+
+
+
 
 
