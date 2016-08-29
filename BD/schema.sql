@@ -264,6 +264,7 @@ CREATE TABLE lancamentos_financeiros (
   id_lancamento_financeiro           int(10)       NOT NULL AUTO_INCREMENT,
   id_cliente_fornecedor              int(10)       NOT NULL,
   id_categoria                       int(10)       NOT NULL,
+  id_sub_categoria                   int(10)       NOT NULL,
   id_tipo_documento                  int(10)       NOT NULL,
   id_cartao_credito                  int(10)       NOT NULL,
   descricao                          varchar(500)  DEFAULT NULL,
@@ -291,6 +292,11 @@ ALTER TABLE lancamentos_financeiros
   ADD CONSTRAINT `fk_lancamentos_financeiros_categorias`
       FOREIGN KEY (id_categoria)
       REFERENCES categorias (id_categoria);
+
+ALTER TABLE lancamentos_financeiros
+  ADD CONSTRAINT `fk_lancamentos_financeiros_sub_categorias`
+      FOREIGN KEY (id_sub_categoria)
+      REFERENCES sub_categorias (id_sub_categoria);
 
 ALTER TABLE lancamentos_financeiros
   ADD CONSTRAINT `fk_lancamentos_financeiros_tipos_documentos`
