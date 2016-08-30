@@ -5,6 +5,12 @@
  */
 package br.com.ux;
 
+import br.com.ux.model.Usuarios;
+import br.com.ux.controller.UsuariosEJB;
+import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.util.List;
+import javax.ejb.EJB;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Consumes;
@@ -22,6 +28,9 @@ import javax.ws.rs.core.MediaType;
 @Path("teste")
 public class TesteWS {
 
+    @EJB
+    UsuariosEJB uEJB;
+
     @Context
     private UriInfo context;
 
@@ -33,17 +42,22 @@ public class TesteWS {
 
     /**
      * Retrieves representation of an instance of br.com.ux.FinanceiroWS
+     *
      * @return an instance of java.lang.String
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getJson() {
-        //TODO return proper representation object
-        throw new UnsupportedOperationException();
+        List<Usuarios> list = uEJB.ListarTodos();
+        Gson g = new Gson();
+        return g.toJson(list);
     }
+
+
 
     /**
      * PUT method for updating or creating an instance of FinanceiroWS
+     *
      * @param content representation for the resource
      */
     @PUT
