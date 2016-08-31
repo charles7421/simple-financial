@@ -9,7 +9,7 @@
 - Padrões de normalização utilizados.
   * Ser o mais descritivo/intuitivo possível no nome do campo.
   * Seguir conceitos do não-relacional, "evitando" relacionamentos entre tabelas e otimizando/reduzindo código.
-  * Nome das tabelas, sempre plural, sempre minúsculo. E no caso, dos campos somente minúsculo.
+  * Nome das tabelas e campos sempre em minúsculo.
   * Toda tabela criada deve ter o seu devido comentário, data de criação, e se for o caso, data de atualização.
   * Identificador da tabela: id_nome_da_tabela, no singular.
   * Quando houver necessidade de nome composto na variavel, usar underline("_").
@@ -20,15 +20,20 @@
   * Toda tabela descritiva deve ter um registro sem valor, um com valor irrelevante (Ex: Sem categoria, sem tipo documento).
 */
 
+CREATE SCHEMA IF NOT EXISTS testews;
+USE testews;
+
+/*
 =============
 ## TABELAS ##
 =============
+*/
 
 /*
 --------------
 Nome da tabela
 --------------
-usuários
+usuário
 
 -----------
 Informações
@@ -42,8 +47,7 @@ Descrição
 Tabela para armazenamento de usuários, sendo pessoa física ou jurídica.
 
 */
-
-CREATE TABLE usuarios (
+CREATE TABLE IF NOT EXISTS usuario (
    id_usuario          int(10)       NOT NULL AUTO_INCREMENT,
    tipo                varchar(100)  DEFAULT NULL,
    nome_fantasia       varchar(250)  DEFAULT NULL,
@@ -78,7 +82,7 @@ CREATE TABLE usuarios (
 --------------
 Nome da tabela
 --------------
-clientes_fornecedores
+cliente_fornecedor
 
 -----------
 Informações
@@ -95,7 +99,7 @@ No caso desta tabela, os campos "cidade", "endereço", "estado", são buscado vi
 
 */
 
-CREATE TABLE clientes_fornecedores (
+CREATE TABLE IF NOT EXISTS cliente_fornecedor (
    id_cliente_fornecedor int(10)       NOT NULL AUTO_INCREMENT,
    id_usuario            int(10)       NOT NULL,
    tipo                  varchar(100)  DEFAULT NULL,
@@ -117,7 +121,7 @@ CREATE TABLE clientes_fornecedores (
    observacoes           text          DEFAULT NULL,
    palavras_chave        varchar(500)  DEFAULT NULL,
    PRIMARY KEY (id_cliente_fornecedor),
-   CONSTRAINT fk_clientes_fornecedores_usuarios FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
+   CONSTRAINT fk_cliente_fornecedor_usuario FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
 );
 
 
@@ -141,17 +145,17 @@ Ex: Alimentação, Lazer, Moradia (Versão pessoa física), Despesas Fixas(Água
 
 */
 
-CREATE TABLE categorias (
+CREATE TABLE IF NOT EXISTS categoria (
   id_categoria        int(10)      NOT NULL AUTO_INCREMENT,
   descricao           varchar(250) DEFAULT NULL,
   PRIMARY KEY (id_categoria)
-)
+);
 
 /*
 --------------
 Nome da tabela
 --------------
-sub_categorias
+sub_categoria
 
 -----------
 Informações
@@ -167,21 +171,21 @@ Ex: Água, Luz, Telefone (Despesas Fixas), Alimentação (Compras, lanches).
 
 */
 
-CREATE TABLE sub_categorias (
+CREATE TABLE IF NOT EXISTS sub_categoria (
   id_sub_categoria    int(10)      NOT NULL AUTO_INCREMENT,
   id_categoria        int(10)      NOT NULL,
   descricao           varchar(250) DEFAULT NULL,
   PRIMARY KEY (id_sub_categoria)
-)
+);
 
-ALTER TABLE sub_categorias 
-  ADD CONSTRAINT `fk_lancamentos_financeiros_categorias` FOREIGN KEY (id_categoria) REFERENCES categorias (id_categoria);
+ALTER TABLE sub_categoria 
+  ADD CONSTRAINT `fk_sub_categoria_categoria` FOREIGN KEY (id_categoria) REFERENCES categoria (id_categoria);
 
 /*
 --------------
 Nome da tabela
 --------------
-tipos_documentos
+tipo_documento
 
 -----------
 Informações
@@ -197,17 +201,17 @@ Ex: Boleto, Cartão (Débito ou Crédito), Dinheiro, sem documento.
 
 */
 
-CREATE TABLE tipos_documentos (
+CREATE TABLE IF NOT EXISTS tipo_documento (
   id_tipo_documento   int(10)      NOT NULL AUTO_INCREMENT,
   descricao           varchar(250) DEFAULT NULL,
   PRIMARY KEY (id_tipo_documento)
-)
+);
 
 /*
 --------------
 Nome da tabela
 --------------
-cartoes_credito
+cartao_credito
 
 -----------
 Informações
@@ -222,7 +226,7 @@ Tabela para armazenar os cartões de crédito que o usuário possua.
 
 */
 
-CREATE TABLE cartoes_credito (
+CREATE TABLE IF NOT EXISTS cartao_credito (
   id_cartao_credito     int(10)       NOT NULL AUTO_INCREMENT,
   descricao             varchar(250)  DEFAULT NULL,
   dt_vencimento_fatura  date          DEFAULT NULL,
@@ -230,13 +234,13 @@ CREATE TABLE cartoes_credito (
   limite                decimal(10,2) DEFAULT NULL,
   saldo_restante        decimal(10,2) DEFAULT NULL,
   PRIMARY KEY (id_cartao_credito)
-)
+);
 
 /*
 --------------
 Nome da tabela
 --------------
-lancamentos_financeiros
+lancamento_financeiro
 
 -----------
 Informações
@@ -260,7 +264,7 @@ Campo ocorrencia_parcelamento (Diário, Mensal, Anual)
 
 */
 
-CREATE TABLE lancamentos_financeiros (
+CREATE TABLE IF NOT EXISTS lancamento_financeiro (
   id_lancamento_financeiro           int(10)       NOT NULL AUTO_INCREMENT,
   id_cliente_fornecedor              int(10)       NOT NULL,
   id_categoria                       int(10)       NOT NULL,
@@ -283,32 +287,35 @@ CREATE TABLE lancamentos_financeiros (
   PRIMARY KEY (id_lancamento_financeiro)
 ); 
 
-ALTER TABLE lancamentos_financeiros
-  ADD CONSTRAINT `fk_lancamentos_financeiros_clientes_fornecedores`
+ALTER TABLE lancamento_financeiro
+  ADD CONSTRAINT `fk_lancamento_financeiro_cliente_fornecedor`
       FOREIGN KEY (id_cliente_fornecedor)
-      REFERENCES clientes_fornecedores (id_cliente_fornecedor);
+      REFERENCES cliente_fornecedor (id_cliente_fornecedor);
 
-ALTER TABLE lancamentos_financeiros
-  ADD CONSTRAINT `fk_lancamentos_financeiros_categorias`
+ALTER TABLE lancamento_financeiro
+  ADD CONSTRAINT `fk_lancamento_financeiro_categoria`
       FOREIGN KEY (id_categoria)
-      REFERENCES categorias (id_categoria);
+      REFERENCES categoria (id_categoria);
 
-ALTER TABLE lancamentos_financeiros
-  ADD CONSTRAINT `fk_lancamentos_financeiros_sub_categorias`
+ALTER TABLE lancamento_financeiro
+  ADD CONSTRAINT `fk_lancamento_financeiro_sub_categoria`
       FOREIGN KEY (id_sub_categoria)
-      REFERENCES sub_categorias (id_sub_categoria);
+      REFERENCES sub_categoria (id_sub_categoria);
 
-ALTER TABLE lancamentos_financeiros
-  ADD CONSTRAINT `fk_lancamentos_financeiros_tipos_documentos`
+ALTER TABLE lancamento_financeiro
+  ADD CONSTRAINT `fk_lancamento_financeiro_tipo_documento`
       FOREIGN KEY (id_tipo_documento)
-      REFERENCES tipos_documentos (id_tipo_documento);
+      REFERENCES tipo_documento (id_tipo_documento);
 
-ALTER TABLE lancamentos_financeiros
-  ADD CONSTRAINT `fk_lancamentos_financeiros_cartoes`
+ALTER TABLE lancamento_financeiro
+  ADD CONSTRAINT `fk_lancamento_financeiro_cartao_credito`
       FOREIGN KEY (id_cartao_credito)
-      REFERENCES cartoes_credito (id_cartao_credito);
+      REFERENCES cartao_credito (id_cartao_credito);
 
-
+INSERT
+  INTO usuario
+(tipo, user, senha, primeiro_nome, segundo_nome, cpf, moeda, caixa_inicial, email, email_confirmado, telefone, dt_cadastro) VALUES
+('Física', 'charles7421', '123', 'Charles', 'Garcia', '087,549,036-02', 'Real (R$)', 0, 'charles7421@hotmail.com', b'1', '(34) 3821 0889', '2016-08-30');
 
 
 

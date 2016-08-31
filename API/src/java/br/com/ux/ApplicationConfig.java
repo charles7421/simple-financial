@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.com.ux.main;
+package br.com.ux;
 
 import java.util.Set;
 import javax.ws.rs.core.Application;
@@ -36,7 +36,13 @@ public class ApplicationConfig extends Application {
      * If required, comment out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
-        resources.add(br.com.ux.TesteWS.class);
+        resources.add(br.com.ux.service.CartaoCreditoFacadeREST.class);
+        resources.add(br.com.ux.service.CategoriaFacadeREST.class);
+        resources.add(br.com.ux.service.ClienteFornecedorFacadeREST.class);
+        resources.add(br.com.ux.service.LancamentoFinanceiroFacadeREST.class);
+        resources.add(br.com.ux.service.SubCategoriaFacadeREST.class);
+        resources.add(br.com.ux.service.TipoDocumentoFacadeREST.class);
+        resources.add(br.com.ux.service.UsuarioFacadeREST.class);
     }
     
 }
