@@ -315,7 +315,7 @@ ALTER TABLE lancamento_financeiro
 INSERT
   INTO usuario
 (tipo, user, senha, primeiro_nome, segundo_nome, cpf, moeda, caixa_inicial, email, email_confirmado, telefone, dt_cadastro) VALUES
-('Física', 'charles7421', '123', 'Charles', 'Garcia', '087,549,036-02', 'Real (R$)', 0, 'charles7421@hotmail.com', b'1', '(34) 3821 0889', '2016-08-30');
+('Física', 'charles7421', '123', 'Charles', 'Garcia', '111.111.111-11', 'Real (R$)', 0, 'charles7421@hotmail.com', b'1', '(34) 3821 0000', '2016-08-30');
 
 
 
