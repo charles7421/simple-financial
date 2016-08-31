@@ -3,11 +3,15 @@ var express = require('express');
 var router = express.Router();
 
 // Models
-var Products = require('../models/products');
+var Usuarios = require('../models/usuario');
+var ClientesFornecedores = require('../models/cliente_fornecedor');
 
 // Routes
-Products.methods(['get', 'put', 'post', 'delete']);
-Products.register(router, '/products');
+Usuarios.methods(['get', 'put', 'post', 'delete']);
+Usuarios.register(router, '/usuarios');
+
+ClientesFornecedores.methods(['get', 'put', 'post', 'delete']);
+ClientesFornecedores.register(router, '/clientes_fornecedores');
 
 
 // Return router
