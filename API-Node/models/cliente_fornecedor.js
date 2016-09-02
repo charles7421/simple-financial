@@ -22,7 +22,7 @@ var clienteFornecedorSchema = new mongoose.Schema({
     }],
     "usuario_id": mongoose.Schema.Types.ObjectId,
     "telefone": String,
-    "dt_cadastro": Date,
+    "dt_cadastro": { type: Date, default: Date.now },
     "dt_ultima_alteracao": { type: Date, default: Date.now },
     "observacoes": [],
     "palavras_chave": []

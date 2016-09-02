@@ -7,8 +7,8 @@ var usuarioSchema = new mongoose.Schema({
 	"tipo": String,
 	"nome_fantasia": String,
 	"razao_social": String,
-	"user": String,
-	"senha": String,
+	"user": { type: String, required: true, unique: true },
+	"senha": { type: String, required: true, select: false },
 	"primeiro_nome": String,
 	"segundo_nome": String,
 	"cpf": String,
@@ -42,18 +42,27 @@ var usuarioSchema = new mongoose.Schema({
         "nome": String,
         "cliente_fornecedor_id": mongoose.Schema.Types.ObjectId
     }],
-    "ativo": Boolean,
-    "bloqueado": Boolean,
+    "ativo": { type: Boolean, default: true },
+    "bloqueado": { type: Boolean, default: false },
     "email": String,
-    "email_confirmado": Boolean,
+    "email_confirmado": { type: Boolean, default: false },
     "telefone": String,
     "redes_sociais": {
     	"facebook": String,
     	"google_plus": String
     },
-    "dt_cadastro": Date,
+    "dt_cadastro": { type: Date, default: Date.now },
     "dt_encerramento": Date,
     "trial": Boolean
+});
+
+
+// Antes de salvar, seta a data de cadastro.
+usuarioSchema.pre('save', function(next) {
+  var currentDate = new Date();
+  this.dt_cadastro = currentDate;
+
+  next();
 });
 
 // Return model
