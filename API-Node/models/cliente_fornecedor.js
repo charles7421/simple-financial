@@ -1,14 +1,20 @@
 // Dependências
-var restful = require('node-restful');
-var mongoose = restful.mongoose;
+const restful = require('node-restful');
+const mongoose = restful.mongoose;
+const Schema = mongoose.Schema;
 
 // Schema 
-var clienteFornecedorSchema = new mongoose.Schema({
+const cpf = require('./fields/field-cpf');
+const cnpj = require('./fields/field-cnpj');
+const usuario_id = require('./fields/field-usuario-id');
+
+
+var clienteFornecedorSchema = new Schema({
   	"tipo": String,
 	"nome_fantasia": String,
     "razao_social": String,
-    "cpf": String,
-    "cnpj": String,
+    cpf,
+    cnpj,
     "atividade_principal": String,
     "ativo": Boolean,
     "bloqueado": Boolean,
@@ -20,12 +26,12 @@ var clienteFornecedorSchema = new mongoose.Schema({
         "cidade": String,
         "estado": String
     }],
-    "usuario_id": mongoose.Schema.Types.ObjectId,
+    usuario_id,
     "telefone": String,
     "dt_cadastro": { type: Date, default: Date.now },
     "dt_ultima_alteracao": { type: Date, default: Date.now },
-    "observacoes": [],
-    "palavras_chave": []
+    "observacoes": [String],
+    "palavras_chave": [String]
 });
 
 // Return model

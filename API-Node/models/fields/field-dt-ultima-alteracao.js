@@ -1,0 +1,1 @@
+module.exports = { "dt_ultima_alteracao": { type: Date, default: Date.now }}

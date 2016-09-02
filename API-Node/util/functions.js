@@ -1,0 +1,6 @@
+const funcoes = {
+    validaCPF: function() {
+
+    }
+       
+}

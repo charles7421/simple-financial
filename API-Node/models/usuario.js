@@ -1,9 +1,15 @@
 // Dependências
-var restful = require('node-restful');
-var mongoose = restful.mongoose;
+const restful = require('node-restful');
+const mongoose = restful.mongoose;
+const Schema = mongoose.Schema;
+
+//var funcoes = require('../util/functions');
+
+const cpf = require('./fields/field-cpf');
+const cnpj = require('./fields/field-cnpj');
 
 // Schema 
-var usuarioSchema = new mongoose.Schema({
+var usuarioSchema = new Schema({
 	"tipo": String,
 	"nome_fantasia": String,
 	"razao_social": String,
@@ -11,8 +17,8 @@ var usuarioSchema = new mongoose.Schema({
 	"senha": { type: String, required: true, select: false },
 	"primeiro_nome": String,
 	"segundo_nome": String,
-	"cpf": String,
-	"cnpj": String,
+	cpf,
+    cnpj,
 	"configuracoes": {
 		"atividade_principal": String,
 		"regime_tributario": String,
@@ -40,7 +46,7 @@ var usuarioSchema = new mongoose.Schema({
     "clientes_fornecedores": [{
         "tipo": String,
         "nome": String,
-        "cliente_fornecedor_id": mongoose.Schema.Types.ObjectId
+        "cliente_fornecedor_id": [{ type: Schema.Types.ObjectId, ref: 'cliente_fornecedor' }]
     }],
     "ativo": { type: Boolean, default: true },
     "bloqueado": { type: Boolean, default: false },
@@ -53,17 +59,9 @@ var usuarioSchema = new mongoose.Schema({
     },
     "dt_cadastro": { type: Date, default: Date.now },
     "dt_encerramento": Date,
-    "trial": Boolean
+    "trial": { type: Boolean, default: false }
 });
 
-
-// Antes de salvar, seta a data de cadastro.
-usuarioSchema.pre('save', function(next) {
-  var currentDate = new Date();
-  this.dt_cadastro = currentDate;
-
-  next();
-});
 
 // Return model
 module.exports = restful.model('usuario', usuarioSchema);
